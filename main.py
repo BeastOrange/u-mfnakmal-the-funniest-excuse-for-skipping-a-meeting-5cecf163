@@ -11,19 +11,37 @@ def main() -> None:
     # Print the line to stdout
     print(EXCUSE)
 
-    # Write to output/entry.txt relative to repository root
-    repo_root = Path(__file__).resolve().parent
-    local_output_path = repo_root / "output" / "entry.txt"
-    local_output_path.parent.mkdir(parents=True, exist_ok=True)
-    local_output_path.write_text(EXCUSE + "\n", encoding="utf-8")
+    makefun_output_dir = os.environ.get("MAKEFUN_OUTPUT_DIR")
+    primary_written = False
 
-    # Attempt to write to /output/entry.txt (skip silently if unavailable)
-    try:
-        root_output_path = Path("/output/entry.txt")
-        root_output_path.parent.mkdir(parents=True, exist_ok=True)
-        root_output_path.write_text(EXCUSE + "\n", encoding="utf-8")
-    except Exception:
-        pass
+    if makefun_output_dir:
+        # Explicit MAKEFUN_OUTPUT_DIR: create directory if needed, write entry.txt there
+        try:
+            target_dir = Path(makefun_output_dir)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            (target_dir / "entry.txt").write_text(EXCUSE + "\n", encoding="utf-8")
+            primary_written = True
+        except Exception:
+            pass
+    else:
+        # Default primary path is /output
+        try:
+            output_dir = Path("/output")
+            if output_dir.is_dir():
+                (output_dir / "entry.txt").write_text(EXCUSE + "\n", encoding="utf-8")
+                primary_written = True
+        except Exception:
+            pass
+
+    # If MAKEFUN_OUTPUT_DIR is unset and /output is not writable, fall back to best-effort repo-local write
+    if not makefun_output_dir and not primary_written:
+        try:
+            repo_root = Path(__file__).resolve().parent
+            local_path = repo_root / "output" / "entry.txt"
+            local_path.parent.mkdir(parents=True, exist_ok=True)
+            local_path.write_text(EXCUSE + "\n", encoding="utf-8")
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

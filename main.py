@@ -3,7 +3,7 @@ from pathlib import Path
 
 # The funniest excuse for skipping a meeting: razor-sharp, relatable, and tight.
 EXCUSE: str = (
-    "I can't attend: I promised my therapist I'd stop joining meetings where five seconds of awkward silence is counted as unanimous consent."
+    "I can't attend: I'm currently drafting the email explaining why this meeting shouldn't exist, and showing up would ruin the surprise."
 )
 
 
